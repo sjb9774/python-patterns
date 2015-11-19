@@ -18,12 +18,18 @@ class TestProxy(unittest.TestCase):
         self.assertEqual(p["key1"], "val1")
         self.assertEqual(len(p.keys()), len(d.keys()))
         self.assertEqual(p, d)
+        self.assertTrue(p == d)
         self.assertNotEqual(id(p), id(d))
-        
+        del p["key1"]
+
     def test_object_proxy(self):
         o = type("TestClass", (object,), {"prop1": [1,2,3], "prop2": "a string"})()
-        p = Proxy(o)
-        self.assertEqual(p.prop1, o.prop1)
-        self.assertEqual(p.prop2, o.prop2)
-        self.assertEqual(p, o)
-        self.assertNotEqual(id(p), id(o))
+        pr = Proxy(o)
+        self.assertEqual(pr.prop1, o.prop1)
+        self.assertEqual(pr.prop2, o.prop2)
+        
+        # My philosophy is that a proxy should be known to be a proxy, it should provide
+        # a middleman for accessing an object, and make it easy to access that object 
+        # through itself, but it should not pretend to *be* that object.
+        self.assertTrue(o == pr._obj)
+        self.assertNotEqual(id(pr), id(o))
