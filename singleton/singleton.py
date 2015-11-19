@@ -37,14 +37,7 @@ def singletonizer(scls, scope=None):
             def __new__(cls, *args, **kwargs):
                 if not instances.get(scls):
                     instances[scls] = scls(*args, **kwargs)
-                    # NOTE: __init__ is only called if we're creating the first instance,
-                    # this means that calling the class with arguments not set new values
-                    # for properties.
-                    # >>> s = Singleton("data")
-                    # >>> t = Singleton("other_data")
-                    # >>> t.data
-                    # 'data'
-                    scls.__init__(instances.get(scls), *args, **kwargs)
+                scls.__init__(instances.get(scls), *args, **kwargs)
                 return instances[scls]
         
         NewType.__name__ = "Singleton_{cls}".format(cls=scls.__name__)
