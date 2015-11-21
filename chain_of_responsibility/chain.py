@@ -6,23 +6,21 @@ class Task(object):
         self.kwargs = kwargs
         self.default = default
         
-class TaskNode(object):
+class Processor(object):
     
     def __init__(self, parent=None):
         self.parent = parent
         
-    def default(*args, **kwargs):
+    def handle_default(*args, **kwargs):
         pass
         
     def handle(self, task):
         result = None
         if self.can_execute(task):
-            method = task.name if hasattr(self, task.name) else "default"
-            result = getattr(self, method)(*task.args, **task.kwargs)
+            method = task.name if hasattr(self, "handle_" + task.name) else "default"
+            return getattr(self, "handle_" + method)(*task.args, **task.kwargs)
         elif self.parent:
-            result = self.parent.handle(task)
-        
-        return result
+            return self.parent.handle(task)
             
     def can_execute(self, task):
-        return (hasattr(self, task.name) and hasattr(getattr(self, task.name), "__call__")) or task.default
+        return (hasattr(self, "handle_" + task.name) and callable(getattr(self, "handle_" + task.name))) or task.default
